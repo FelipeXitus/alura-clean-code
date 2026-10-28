@@ -1,38 +1,22 @@
-import express, { type Router, type Request, type Response } from 'express';
-import { listaCidades } from '../../constants';
+import { Request, Response } from 'express';
+import * as cidadeService from './cidade.service';
 
-const router:Router = express.Router();
+export const listarCidades = (req: Request, res: Response) => {
+    const cidades = cidadeService.listarCidades();
 
-const listarCidades = (req: Request, res: Response) => {
-    res.status(200).json(listaCidades);
+    return res.status(200).json(cidades);
 };
 
+export const adicionarCidade = (req: Request, res: Response) => {
+    try {
+        const novaCidade = cidadeService.adicionarCidade(req.body);
 
-const adicionarCidade = (req: Request, res: Response) => {
-    const dados = req.body;
-
-    if (!dados.nomeCidade || !dados.uf) {
-        return res.status(400).send({ erro: 'Dados incompletos: nomeCidade e uf são obrigatórios.' });
-    }
-
-    for (let i = 0; i < listaCidades.length; i++) {
-        if (listaCidades[i].nomeCidade.toLowerCase() === dados.nomeCidade.toLowerCase() && listaCidades[i].uf.toLowerCase() === dados.uf.toLowerCase()) {
-            return res.status(409).send({ erro: 'Esta cidade já está cadastrada.' });
+        return res.status(201).json(novaCidade);
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(400).json({ erro: error.message });
         }
+
+        return res.status(500).json({ erro: 'Erro interno.' });
     }
-
-    let contadorCidade = listaCidades.length;
-
-    contadorCidade = contadorCidade + 1;
-    const novaCoisa = {
-        id: contadorCidade,
-        nomeCidade: dados.nomeCidade,
-        uf: dados.uf,
-    };
-
-    listaCidades.push(novaCoisa); // Adiciona na lista.
-
-    res.status(201).json(novaCoisa);
 };
-
-export { listarCidades, adicionarCidade };

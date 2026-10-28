@@ -1,6 +1,6 @@
-import express, { type Request, type Response } from 'express';
+import express from 'express';
 import { listarCidades, adicionarCidade } from './domains/cidades/cidade.controller';
-import { processarUsuarios, manipularItemEspecifico } from './domains/usuario/usuario.controller';
+import { listarUsuarios, criarUsuario, buscarUsuarioPorId, atualizarUsuario, excluirUsuario } from './domains/usuario/usuario.controller';
 
 const app = express();
 app.use(express.json());
@@ -11,13 +11,13 @@ app.route('/cidades')
 	
 
 app.route('/usuarios')
-	.post(processarUsuarios)
-	.get(processarUsuarios);
+	.get(listarUsuarios)
+	.post(criarUsuario);
 
 app.route('/usuarios/:id')
-	.get(manipularItemEspecifico)
-	.put(manipularItemEspecifico)
-	.delete(manipularItemEspecifico);
+	.get(buscarUsuarioPorId)
+	.put(atualizarUsuario)
+	.delete(excluirUsuario);
 
 // ===================================================================================
 // INICIALIZAÇÃO DO SERVIDOR
