@@ -1,38 +1,81 @@
 import { listaCidades } from '../../constants';
+import { AppError } from '../../shared/errors/app-error';
+import type { Cidade, CriarCidadeInput } from './cidade.model';
 
-interface CidadeInput {
-    nomeCidade: string;
-    uf: string;
-}
-
-export const listarCidades = () => {
-    return listaCidades;
+const normalizarTexto = (valor: string): string => {
+    return valor.trim().toLocaleLowerCase('pt-BR');
 };
 
-export const adicionarCidade = (dados: CidadeInput) => {
-    if (!dados.nomeCidade || !dados.uf) {
-        throw new Error(
-            'Dados incompletos: nomeCidade e uf são obrigatórios.'
+const gerarProximoId = (): number => {
+    const maiorId = listaCidades.reduce(
+        (idAtual, cidade) => Math.max(idAtual, cidade.id),
+        0
+    );
+
+    return maiorId + 1;
+};
+
+const validarEntrada = (
+    dados: unknown
+): CriarCidadeInput => {
+    if (typeof dados !== 'object' || dados === null) {
+        throw new AppError('O corpo da requisição é inválido.', 400);
+    }
+
+    const { nomeCidade, uf } = dados as Record<string, unknown>;
+
+    if (typeof nomeCidade !== 'string' || nomeCidade.trim() === '') {
+        throw new AppError(
+            'O campo nomeCidade é obrigatório e deve ser uma string.',
+            400
         );
     }
 
-    const cidadeJaExiste = listaCidades.some(
-        (cidade) =>
-            cidade.nomeCidade.toLowerCase() === dados.nomeCidade.toLowerCase() &&
-            cidade.uf.toLowerCase() === dados.uf.toLowerCase()
-    );
-
-    if (cidadeJaExiste) {
-        throw new Error('Esta cidade já está cadastrada.');
+    if (typeof uf !== 'string' || !/^[A-Za-z]{2}$/.test(uf.trim())) {
+        throw new AppError(
+            'O campo uf deve conter exatamente duas letras.',
+            400
+        );
     }
 
-    const novaCidade = {
-        id: listaCidades.length + 1,
-        nomeCidade: dados.nomeCidade,
-        uf: dados.uf,
+    return {
+        nomeCidade: nomeCidade.trim(),
+        uf: uf.trim().toUpperCase(),
+    };
+};
+
+export const listarCidades = (): Cidade[] => {
+    return listaCidades.map((cidade) => ({ ...cidade }));
+};
+
+export const adicionarCidade = (
+    entrada: CriarCidadeInput
+): Cidade => {
+    const cidadeJaExiste = listaCidades.some((cidade) => {
+        const mesmoNome =
+            normalizarTexto(cidade.nomeCidade) ===
+            normalizarTexto(entrada.nomeCidade);
+
+        const mesmaUf =
+            cidade.uf.toUpperCase() === entrada.uf;
+
+        return mesmoNome && mesmaUf;
+    });
+
+    if (cidadeJaExiste) {
+        throw new AppError(
+            'Esta cidade já está cadastrada.',
+            409
+        );
+    }
+
+    const novaCidade: Cidade = {
+        id: gerarProximoId(),
+        nomeCidade: entrada.nomeCidade,
+        uf: entrada.uf,
     };
 
     listaCidades.push(novaCidade);
 
-    return novaCidade;
+    return { ...novaCidade };
 };

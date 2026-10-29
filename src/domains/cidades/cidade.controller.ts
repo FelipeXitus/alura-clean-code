@@ -1,22 +1,35 @@
-import { Request, Response } from 'express';
+import type {
+    NextFunction,
+    Request,
+    Response
+} from 'express';
+
 import * as cidadeService from './cidade.service';
 
-export const listarCidades = (req: Request, res: Response) => {
-    const cidades = cidadeService.listarCidades();
+export const listarCidades = (
+    _req: Request,
+    res: Response,
+    next: NextFunction
+): void => {
+    try {
+        const cidades = cidadeService.listarCidades();
 
-    return res.status(200).json(cidades);
+        res.status(200).json(cidades);
+    } catch (error: unknown) {
+        next(error);
+    }
 };
 
-export const adicionarCidade = (req: Request, res: Response) => {
+export const adicionarCidade = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): void => {
     try {
         const novaCidade = cidadeService.adicionarCidade(req.body);
 
-        return res.status(201).json(novaCidade);
-    } catch (error) {
-        if (error instanceof Error) {
-            return res.status(400).json({ erro: error.message });
-        }
-
-        return res.status(500).json({ erro: 'Erro interno.' });
+        res.status(201).json(novaCidade);
+    } catch (error: unknown) {
+        next(error);
     }
 };

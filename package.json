@@ -2,10 +2,10 @@
   "name": "alura-clean-code",
   "version": "1.0.0",
   "description": "Projeto inicial com más práticas para o curso de Clean Code.",
-  "main": "index.ts",
+  "main": "src/server.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
-    "dev": "nodemon src/index.ts"
+    "start": "ts-node src/server.ts",
+    "dev": "nodemon src/server.ts"
   },
   "keywords": [
     "clean-code",
@@ -16,13 +16,13 @@
   "author": "Aluno",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^5.3.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.17",
-    "@types/node": "^20.8.10",
-    "nodemon": "^3.0.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
   }
 }
